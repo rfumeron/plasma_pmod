@@ -700,7 +700,7 @@ begin  --architecture
       fifo_1_empty, fifo_2_empty, fifo_1_full, fifo_2_full,
       fifo_1_valid, fifo_2_valid, fifo_1_compteur, fifo_2_compteur, fifo_1_out_data,
       oledsigplot_output, oledterminal_output, oledcharmap_output, olednibblemap_output,
-      oledbitmap_output, ctrl_SL_output)
+      oledbitmap_output, ctrl_SL_output, mic_output)
    begin
       case cpu_address(30 downto 28) is
 

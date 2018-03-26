@@ -25,9 +25,7 @@ architecture Behavorial of MIC_ctrl is
 
     component counter_module is
         Generic (   DATA_SIZE : integer range 1 to 16 := 7;
-                    INIT_VAL  : integer range 0 to 1000000 := 0;
-                    FR_PORCH  : integer range 0 to 1000000 := 0;
-                    BK_PORCH  : integer range 0 to 1000000 := 0
+                    INIT_VAL  : integer range 0 to 1000000 := 0
                 );
         Port (  clk         : in STD_LOGIC;
                 reset       : in STD_LOGIC;
