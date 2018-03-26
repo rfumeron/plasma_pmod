@@ -1,0 +1,6 @@
+
+
+
+uBoot-Loader (UART/PCIe)  v1.1Mar 12 2018 14:16:21
+(C) B. LE GAL 2012 - 2013
+(I) Waiting program from PCIe or UART

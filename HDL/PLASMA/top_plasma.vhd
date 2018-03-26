@@ -24,6 +24,7 @@ entity top_plasma is
            eSwitchLED  : std_logic  := '1';
            eSevenSegments : std_logic  := '1';
            eI2C        : std_logic  := '1';
+	eMIC : STD_LOGIC := '1';
            use_cache   : std_logic  := '0');
     port(
 	clk100: in std_logic;
@@ -69,7 +70,11 @@ entity top_plasma is
 	    OLED_PMOD_DC      	: out STD_LOGIC;
 	    OLED_PMOD_RES     	: out STD_LOGIC;
 	    OLED_PMOD_VCCEN   	: out STD_LOGIC;
-	    OLED_PMOD_EN      	: out STD_LOGIC
+	    OLED_PMOD_EN      	: out STD_LOGIC;
+
+			    clk_mic         : out STD_LOGIC;
+			    data_mic        : in STD_LOGIC;
+			    LR_sel          : out STD_LOGIC
 	);
 end top_plasma;
 
@@ -128,6 +133,7 @@ end process;
 		eSwitchLED  => eSwitchLED,
 		eSevenSegments => eSevenSegments,
 		eI2C        => eI2C,
+	eMIC => eMIC,
 		use_cache   => use_cache
 	)
 	PORT MAP(
@@ -190,7 +196,11 @@ end process;
 		OLED_PMOD_EN    => OLED_PMOD_EN,
 
 		gpio0_out       => open,
-		gpioA_in        => x"00000000" --open
+		gpioA_in        => x"00000000", --open
+
+					    clk_mic => clk_mic,
+			    data_mic => data_mic,
+			    LR_sel => LR_sel
 	);
 
 

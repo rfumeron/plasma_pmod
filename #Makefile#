@@ -192,7 +192,6 @@ CONFIG_RGB_OLED ?= yes
 CONFIG_SWITCH_LED ?= yes
 CONFIG_SEVEN_SEGMENTS ?= yes
 CONFIG_I2C ?= yes
-CONFIG_MIC ?= yes
 
 ifeq ($(CONFIG_PROJECT),hello)
 PROJECT = $(HELLO)
@@ -265,13 +264,6 @@ PLASMA_SOC_GENERICS += eI2C=1'b1
 PLASMA_SOC_FILES += i2c.vhd
 else
 PLASMA_SOC_GENERICS += eI2C=1'b0
-endif
-
-ifeq ($(CONFIG_MIC),yes)
-PLASMA_SOC_GENERICS += eMIC=1'b1
-PLASMA_SOC_FILES += MIC_ctrl.vhd gen_clk_2M5.vhd FSM_MIC_ctrl.vhd fifo_module.vhd data_processing_module.vhd counter_module.vhd
-else
-PLASMA_SOC_GENERICS += eMIC=1'b0
 endif
 
 PLASMA_SOC_ARGUMENTS = $(foreach generic,$(PLASMA_SOC_GENERICS),-generic $(generic))
@@ -516,4 +508,3 @@ simu: simulation
 clean:
 	rm -rf $(BUILD_DIRS)
 	rm -f $(BUILD_BINS)
-	rm -rf xelab* xsim* webtalk* usage_statistics* *.wdb vivado_*

@@ -84,6 +84,7 @@ entity plasma is
            eSwitchLED  : std_logic;
            eSevenSegments : std_logic;
            eI2C        : std_logic;
+	eMIC : std_logic;
            use_cache   : std_logic;
            CLK_FREQ_HZ : integer := 100000000;        -- by default, we run at 100MHz
            BPP         : integer range 1 to 16 := 16; -- bits per pixel
@@ -162,7 +163,15 @@ entity plasma is
 				i2c_scl_pmod : inout std_logic;
 
 				gpio0_out    : out std_logic_vector(31 downto 0);
-				gpioA_in     : in  std_logic_vector(31 downto 0));
+				gpioA_in     : in  std_logic_vector(31 downto 0);
+
+-- MODIFIE -------------------------------------------------------------------------
+
+			    clk_mic         : out STD_LOGIC;
+			    data_mic        : in STD_LOGIC;
+			    LR_sel          : out STD_LOGIC);
+
+-----------------------------------------------------------------------------------
 end; --entity plasma
 
 architecture logic of plasma is
@@ -305,6 +314,13 @@ architecture logic of plasma is
    signal cache_miss        : std_logic;
    signal cache_hit         : std_logic;
 
+-- MODIFIE -------------------------------------------------------------------------
+
+	signal mic_reset           : STD_LOGIC;
+    	signal mic_input_valid     : STD_LOGIC;
+        signal mic_output	   : STD_LOGIC_VECTOR(31 downto 0);
+
+-------------------------------------------------------------------------------------
 
 	COMPONENT memory_64k
     Port ( clk       : in   STD_LOGIC;
@@ -480,6 +496,23 @@ architecture logic of plasma is
           PMOD_EN      : out STD_LOGIC);
 	end component;
 
+-- MODIFIE -------------------------------------------------------------------------
+
+	component MIC_ctrl is
+    Generic (   DATA_SIZE : integer range 1 to 16 := 7);
+    Port (  clk             : in STD_LOGIC;
+            reset           : in STD_LOGIC;
+            input_valid     : in STD_LOGIC;
+            proc_in_data    : in STD_LOGIC_VECTOR(31 downto 0);
+            proc_out_data   : out STD_LOGIC_VECTOR(31 downto 0);
+
+            clk_mic         : out STD_LOGIC;
+            data_mic        : in STD_LOGIC;
+            LR_sel          : out STD_LOGIC);
+end component;
+
+------------------------------------------------------------------------------------
+
 begin  --architecture
 
 
@@ -567,6 +600,9 @@ begin  --architecture
 
    oledsigplot_reset <= '1' when (cpu_address = x"400004D0") AND (cpu_pause = '0') else '0';
    oledsigplot_valid <= '1' when (cpu_address = x"400004D8") AND (cpu_pause = '0') AND (write_enable = '1') else '0';
+
+   mic_reset <= '1' when (cpu_address = x"40000504") AND (cpu_pause = '0') else '0';
+   mic_input_valid <= '1' when (cpu_address = x"40000508") AND (cpu_pause = '0') AND (write_enable = '1') else '0';
 
 --   assert cop_4_valid /= '1' severity failure;
 	--
@@ -735,6 +771,9 @@ begin  --architecture
 			when x"400004AC" => cpu_data_r <= oledterminal_output;
 			when x"400004B8" => cpu_data_r <= oledbitmap_output;
 			when x"400004D8" => cpu_data_r <= oledsigplot_output;
+
+			when x"40000500" => cpu_data_r <= mic_output;		-- MODIFIE -----------------------------------
+
 			when others => cpu_data_r <= x"FFFFFFFF";
 		end case;
 
@@ -1318,6 +1357,7 @@ begin  --architecture
 		       	olednibblemap_pinout when oled_mux(3 downto 0) = "0100" else
 		       	oledsigplot_pinout when oled_mux(3 downto 0) = "0101" else
 		       	(others => 'Z');
+
 	end generate;
 
 	rgb_oled_gen_disabled: if eRGBOLED = '0' generate
@@ -1331,6 +1371,26 @@ begin  --architecture
 	OLED_PMOD_RES   <= oled_pinout(4);
 	OLED_PMOD_VCCEN <= oled_pinout(5);
 	OLED_PMOD_EN    <= oled_pinout(6);
+
+-- MODIFIER ----------------------------------------------------------------------------
+	gen_MIC: if eMic = '1' generate
+		plasma_mic : MIC_ctrl
+		Port map (  clk => clk,
+			    reset => mic_reset,
+			    input_valid => mic_input_valid,
+			    proc_in_data => cpu_data_w,
+			    proc_out_data => mic_output,
+
+			    clk_mic => clk_mic,
+			    data_mic => data_mic,
+			    LR_sel => LR_sel);
+	end generate;
+
+	disable_MIC : if eMic = '0' generate
+		clk_mic <= '0';
+		LR_sel <= '0';
+	end generate;
+-------------------------------------------------------------------------------------------
 
 	process (reset, clk)
 	begin

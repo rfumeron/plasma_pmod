@@ -464,14 +464,14 @@ set_property PULLUP true [get_ports {i2c_sda_tmp}]
 
 ##Omnidirectional Microphone
 ##Bank = 35, Pin name = IO_25_35,							Sch name = M_CLK
-#set_property PACKAGE_PIN J5 [get_ports micClk]
-#set_property IOSTANDARD LVCMOS33 [get_ports micClk]
+set_property PACKAGE_PIN J5 [get_ports clk_mic]
+set_property IOSTANDARD LVCMOS33 [get_ports clk_mic]
 ##Bank = 35, Pin name = IO_L24N_T3_35,						Sch name = M_DATA
-#set_property PACKAGE_PIN H5 [get_ports micData]
-#set_property IOSTANDARD LVCMOS33 [get_ports micData]
+set_property PACKAGE_PIN H5 [get_ports data_mic]
+set_property IOSTANDARD LVCMOS33 [get_ports data_mic]
 ##Bank = 35, Pin name = IO_0_35,								Sch name = M_LRSEL
-#set_property PACKAGE_PIN F5 [get_ports micLRSel]
-#set_property IOSTANDARD LVCMOS33 [get_ports micLRSel]
+set_property PACKAGE_PIN F5 [get_ports LR_sel]
+set_property IOSTANDARD LVCMOS33 [get_ports LR_sel]
 
 
 

@@ -169,6 +169,7 @@ BEGIN  --architecture
 	    eSwitchLED  => '1',
 	    eSevenSegments => '1',
 	    eI2C        => '1',
+	    eMIC => '1',
 	    use_cache	=> '0',
 	    log_file	=> log_file
 	    )
