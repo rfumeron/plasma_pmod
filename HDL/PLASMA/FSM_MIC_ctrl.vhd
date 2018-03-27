@@ -18,7 +18,7 @@ end FSM_MIC_ctrl;
 
 architecture Behavorial of FSM_MIC_ctrl is
 
-    type state is (INIT, STOP_FIFO, WAITING_1, WAITING_2, FIFO_EMPTY, SEND_DATA);
+    type state is (INIT, STOP_FIFO, WAITING_1, FIFO_EMPTY, SEND_DATA);
     signal sdata_in : STD_LOGIC_VECTOR(6 downto 0);
     signal sSTATE : STD_LOGIC_VECTOR(2 downto 0);
     signal sHEAD : STD_LOGIC_VECTOR(7 downto 0);
@@ -43,11 +43,11 @@ begin
                 case etat is
                     when INIT       =>  etat <= STOP_FIFO;
                     when STOP_FIFO  =>  if input_valid = '1' and input_data = x"FFFFFFFF" then
-                                            etat <= WAITING_2;
-                                        end if;
-                    when WAITING_2  =>  if input_valid = '1' and input_data = x"0000FFFF" then
                                             etat <= WAITING_1;
                                         end if;
+--                    when WAITING_2  =>  if input_valid = '1' and input_data = x"0000FFFF" then
+--                                            etat <= WAITING_1;
+--                                        end if;
                     when WAITING_1    =>  if input_valid = '1' then
                                             if input_data = x"FFFFFFFF" then
                                                 if empty = '1' then
@@ -59,8 +59,8 @@ begin
                                                 etat <= STOP_FIFO;
                                             end if;
                                            end if;
-                    when FIFO_EMPTY => etat <= WAITING_2;
-                    when SEND_DATA  => etat <= WAITING_2;
+                    when FIFO_EMPTY => etat <= WAITING_1;
+                    when SEND_DATA  => etat <= WAITING_1;
                 end case;
             end if;
         end if;
@@ -75,21 +75,22 @@ begin
                                 sBODY <= "000000000000000000000";
                                 sSTATE <= "000";
             when STOP_FIFO  =>  read_FIFO <= '0';
-                                sSTATE <= "001";
+                                sSTATE <= "000";
             when WAITING_1  =>  read_FIFO <= '0';
-                                sSTATE <= "010";
-            when WAITING_2  =>  read_FIFO <= '0';
-                                sSTATE <= "011";
+                                sSTATE <= "000";
+--            when WAITING_2  =>  read_FIFO <= '0';
+--                                sSTATE <= "011";
             when FIFO_EMPTY =>  read_FIFO <= '0';
                                 --output_data <= x"80000000";
-                                sHEAD <= "10000000";
+                                sHEAD <= "00000000";
                                 sBODY <= "000000000000000000000";
-                                sSTATE <= "100";
+                                sSTATE <= "000";
             when SEND_DATA  =>  read_FIFO <= '1';
                                 --output_data <= "0" & "1000000" & "111111111111111111111111";
-                                sHEAD <= "01000000";
+                                --sHEAD <= "01000000";
+                                sHEAD <= "0" & data_in;
                                 sBODY <= "111111111111111111111";
-                                sSTATE <= "101";
+                                sSTATE <= "111";
             when others     =>  read_FIFO <= '0';
                                 --output_data <= x"00000000";
                                 sHEAD <= "00000000";

@@ -20,6 +20,7 @@ architecture Behavorial of MIC_ctrl is
     component gen_clk_2M5 is
         Port (  clk     : in STD_LOGIC;
                 reset   : in STD_LOGIC;
+                clk_rising : out STD_LOGIC;
                 clk_2M5 : out STD_LOGIC);
     end component;
 
@@ -28,6 +29,7 @@ architecture Behavorial of MIC_ctrl is
                     INIT_VAL  : integer range 0 to 1000000 := 0
                 );
         Port (  clk         : in STD_LOGIC;
+                clk_rising  : in STD_LOGIC;
                 reset       : in STD_LOGIC;
                 data_mic    : in STD_LOGIC;
                 data_ready  : out STD_LOGIC;
@@ -79,8 +81,8 @@ architecture Behavorial of MIC_ctrl is
 
 ----------------------- Signals -------------------------------
 
-    signal  clk_2M5, data_ready_1, data_ready_2, full, empty,
-            write_FIFO, read_FIFO : STD_LOGIC;
+    signal  data_ready_1, data_ready_2, full, empty,
+            write_FIFO, read_FIFO, clk_rising : STD_LOGIC;
     signal  data_cmp_1, data_cmp_2,
             data_FIFO_in, data_FIFO_out : STD_LOGIC_VECTOR(DATA_SIZE-1 downto 0);
 
@@ -90,7 +92,8 @@ begin
         Port map (
             clk     => clk,
             reset   => reset,
-            clk_2M5 => clk_2M5
+            clk_rising  => clk_rising,
+            clk_2M5 => clk_mic
         );
 
     counter1 : counter_module
@@ -99,7 +102,8 @@ begin
             INIT_VAL    => 0
         )
         Port map (
-            clk         => clk_2M5,
+            clk         => clk,
+            clk_rising  => clk_rising,
             reset       => reset,
             data_mic    => data_mic,
             data_ready  => data_ready_1,
@@ -112,7 +116,8 @@ begin
             INIT_VAL    => 64
         )
         Port map (
-            clk         => clk_2M5,
+            clk         => clk,
+            clk_rising  => clk_rising,
             reset       => reset,
             data_mic    => data_mic,
             data_ready  => data_ready_2,
@@ -136,7 +141,7 @@ begin
     FIFO : FIFO_module
         Generic map (
             DATA_SIZE   => DATA_SIZE,
-            DEPTH       => 64
+            DEPTH       => 96
         )
         Port map (
             clk         => clk,
@@ -169,8 +174,7 @@ begin
             input_data  => proc_in_data,
             output_data => proc_out_data
         );
-
-    clk_mic <= clk_2M5;
+        
     LR_sel <= '0';
 
 end Behavorial;

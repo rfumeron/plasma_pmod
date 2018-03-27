@@ -7,6 +7,7 @@ entity counter_module is
                 INIT_VAL  : integer range 0 to 1000000 := 0
             );
     Port (  clk         : in STD_LOGIC;
+            clk_rising  : in STD_LOGIC;
             reset       : in STD_LOGIC;
             data_mic    : in STD_LOGIC;
             data_ready  : out STD_LOGIC;
@@ -28,26 +29,30 @@ begin
             counter <= INIT_VAL;
             value <= 0;
             data_ready <= '0';
-        elsif counter = 2**DATA_SIZE-1 then
-            data_ready <= '1';
-            counter <= 0;
-            if data_mic = '1' then
-                value <= value + 1;
-            end if;
-        elsif counter = 0 then
-            data_ready <= '0';
-            counter <= counter + 1;
-            if data_mic = '1' then
-                value <= 1;
+        elsif clk_rising = '1' then
+            if counter = 2**DATA_SIZE-1 then
+                data_ready <= '1';
+                counter <= 0;
+--                if data_mic = '1' then
+--                    value <= value + 1;
+--                end if;
+            elsif counter = 0 then
+                data_ready <= '0';
+                counter <= counter + 1;
+                if data_mic = '1' then
+                    value <= 1;
+                else
+                    value <= 0;
+                end if;
             else
-                value <= 0;
+                data_ready <= '0';
+                counter <= counter + 1;
+                if data_mic = '1' then
+                    value <= value + 1;
+                end if;
             end if;
         else
             data_ready <= '0';
-            counter <= counter + 1;
-            if data_mic = '1' then
-                value <= value + 1;
-            end if;
         end if;
     end if;
 end process synchrone;
