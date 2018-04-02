@@ -1,3 +1,5 @@
+
+
 #include "../../shared/plasmaSoPCDesign.h"
 #include "../../shared/plasma.h"
 #include "../../shared/plasmaMyPrint.h"
@@ -38,6 +40,7 @@ int main(int argc, char ** argv)
 
 	volatile unsigned int sw = 0;
 	volatile unsigned char data;
+	volatile int aff = 0;
 	volatile int i;
 	volatile int j;
 
@@ -61,49 +64,56 @@ int main(int argc, char ** argv)
 		//MemoryWrite(CTRL_MIC_ADDR, FIFO_REQUEST_1);
 
 		sw = MemoryRead(DATA_MIC_ADDR);
-		if (sw) {
-			data = (char)(sw >> 25);						// data = MSBs (7 bits)
-			my_printf("", data);
-			// printPixel(data, i, 0xFFFF);
-			screen[i] = data;
-			// if (i != 0)
-			// {
-			// 	while(data != screen[i-1])
-			// 	{
-			// 		if (data < screen[i-1])
-			// 		{
-			// 			data++;
-			// 		} else {
-			// 			data--;
-			// 		}
-			// 		printPixel(data, i, 0xFFFF);
-			// 	}
-			// }
-			if (i == 95)
+		data = (unsigned char)(sw >> 25);
+		if (sw && (i != 0 || data == 32)) {
+			if (i==1 && (screen[0] >= data))
 			{
-				// for(volatile int j = 0; j<500000; j++);
-				for(i = 1; i<95; i++)
+				i = 0;
+			} else {
+				//if (sw < 0)
+				//while(1);						// data = MSBs (7 bits)
+				//my_printf("", data);
+				// printPixel(data, i, 0xFFFF);
+				screen[i] = data;
+				// if (i != 0)
+				// {
+				// 	while(data != screen[i-1])
+				// 	{
+				// 		if (data < screen[i-1])
+				// 		{
+				// 			data++;
+				// 		} else {
+				// 			data--;
+				// 		}
+				// 		printPixel(data, i, 0xFFFF);
+				// 	}
+				// }
+				if (i == 95)
 				{
-					for(j = 0; j<64; j++)
+					// for(volatile int j = 0; j<500000; j++);
+					for(i = 1; i<95; i++)
 					{
-						if (((screen[i] >= j) && (screen[i-1] <= j)) || (screen[i] <= j) && (screen[i-1] >= j))
+						for(j = 0; j<64; j++)
 						{
-							 printPixel(j, i, 0xFFFF);
-						} else {
-							 printPixel(j, i, 0x0000);
+							if (((screen[i] >= j) && (screen[i-1] <= j)) || (screen[i] <= j) && (screen[i-1] >= j))
+							{
+								 printPixel(j, i, 0x07E0);
+							} else {
+								 printPixel(j, i, 0x0000);
+							}
 						}
 					}
-				}
-				i=0;
-				//wipeScreen();
-			//	my_printf("", i);
-				//for(j = 0; j<1000000; j++);
-			} else {
-				i++;
-				//for(volatile int j = 0; j<10000; j++);
-				//while(1);
-			}				// Affichage de la donn�es
-			//compteur--;
+					i=0;
+					//wipeScreen();
+				//	my_printf("", i);
+					//for(j = 0; j<1000000; j++);
+				} else {
+					i++;
+					//for(volatile int j = 0; j<10000; j++);
+					//while(1);
+				}				// Affichage de la donn�es
+				//compteur--;
+			}
 		}
 	}
 
